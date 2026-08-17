@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدیریت پروکسی تلگرام Railway</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #151e32;
+      --card-inner: #0f1629;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #24324d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .container { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px; max-width: 640px; width: 100%; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.6); }
+    h1 { font-size: 22px; margin-bottom: 6px; color: var(--primary); text-align: center; }
+    p.sub { color: var(--text-muted); font-size: 13px; text-align: center; margin-bottom: 24px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .tab-btn { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    .tab-btn.active { background: var(--primary); color: #0b0f19; border-color: var(--primary); }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--text-muted); font-weight: 500; }
+    input, select { width: 100%; background: #080c14; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 13px; outline: none; transition: border-color 0.2s; }
+    input:focus, select:focus { border-color: var(--primary); }
+    .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; text-align: center; background: var(--primary); color: #0b0f19; font-weight: 700; padding: 11px; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; font-size: 14px; transition: all 0.2s; }
+    .btn:hover { background: var(--primary-hover); color: #fff; }
+    .btn-secondary { background: #1e293b; color: #cbd5e1; border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #334155; color: #fff; }
+    .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 6px; width: auto; }
+    .result { margin-top: 20px; padding: 16px; background: #080c14; border-radius: 12px; border: 1px dashed var(--border); }
+    .result-link { word-break: break-all; font-family: monospace; font-size: 11px; color: var(--primary); margin-bottom: 12px; background: #111827; padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .server-list { margin-top: 20px; }
+    .server-item { display: flex; align-items: center; justify-content: space-between; background: #080c14; border: 1px solid var(--border); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+    .server-item span { font-family: monospace; color: var(--primary); font-size: 12px; }
+    .tools-box { background: var(--card-inner); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 14px; }
+    .alert { padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 14px; line-height: 1.6; }
+    .alert-tip { background: rgba(56, 189, 248, 0.1); border-right: 3px solid var(--primary); color: #bae6fd; }
+    .alert-warning { background: rgba(245, 158, 11, 0.15); border-right: 3px solid var(--warning); color: #fde68a; }
+    .alert-error { background: rgba(239, 68, 68, 0.15); border-right: 3px solid var(--danger); color: #fca5a5; }
+    #diagBox { margin-top: 10px; font-size: 12px; }
+    #qrcode-box { display: flex; flex-direction: column; align-items: center; margin-top: 14px; padding: 12px; background: #fff; border-radius: 10px; width: fit-content; margin-left: auto; margin-right: auto; }
+    #qrcode-box img { display: block; width: 140px; height: 140px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>مدیریت پروکسی تلگرام Railway 🚀</h1>
+    <p class="sub">تولید سریع لینک اتصال، ذخیره چندین سرور و عیب‌یابی هوشمند</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('connect')">🔗 اتصال و مدیریت سرورها</button>
+      <button class="tab-btn" onclick="switchTab('generator')">🎲 ساخت Secret</button>
+    </div>
+
+    <!-- تب ۱: اتصال و مدیریت -->
+    <div id="tab-connect">
+      <div class="alert alert-tip">
+        💡 <strong>نکته مهم:</strong> در پنل Railway وارد بخش <strong>Settings > Networking</strong> شده و <strong>Add TCP Proxy</strong> را بزنید. آدرس با فرمت <code>*.proxy.rlwy.net</code> و پورت عددی را در کادرهای زیر وارد کنید.
+      </div>
+
+      <div id="diagBox"></div>
+
+      <div class="form-group">
+        <label>نام اکانت / سرور (دلخواه):</label>
+        <input type="text" id="nodeName" placeholder="مثال: سرور اکانت ۱" value="اکانت اصلی">
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>آدرس هاست TCP (Host):</label>
+          <input type="text" id="host" placeholder="roundhouse.proxy.rlwy.net" value="roundhouse.proxy.rlwy.net" oninput="runDiagnostics()">
+        </div>
+        <div class="form-group">
+          <label>پورت TCP (Port):</label>
+          <input type="number" id="port" placeholder="12345" value="12345" oninput="runDiagnostics()">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>سکرت Fake-TLS:</label>
+        <input type="text" id="secret" value="eed34e5658e41a995252834b92b6a95f7c676f6f676c652e636f6d" oninput="runDiagnostics()">
+      </div>
+
+      <button class="btn" onclick="generateAndSave()">⚡ تولید لینک و ذخیره سرور</button>
+
+      <div class="result" id="resultBox" style="display: none;">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">لینک مستقیم اتصال تلگرام:</p>
+        <div class="result-link" id="linkText"></div>
+        
+        <div class="actions">
+          <a class="btn" id="connectBtn" href="#" target="_blank">📲 باز کردن در تلگرام</a>
+          <button class="btn btn-secondary" onclick="copyLink()">📋 کپی لینک</button>
+        </div>
+
+        <div id="qrcode-box" style="display: none;">
+          <img id="qrImage" alt="QR Code" src="">
+          <span style="color: #0f172a; font-size: 11px; margin-top: 6px; font-weight: 600;">اسکن با دوربین گوشی</span>
+        </div>
+      </div>
+
+      <div class="server-list" id="savedListContainer" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <p style="font-size: 13px; color: var(--text-muted); font-weight: 600;">سرورهای ذخیره شده (چند اکانته):</p>
+          <button class="btn btn-secondary btn-sm" onclick="copyAllServers()">📋 کپی لیست همه برای تلگرام</button>
+        </div>
+        <div id="savedServers"></div>
+      </div>
+    </div>
+
+    <!-- تب ۲: ساخت سکرت -->
+    <div id="tab-generator" style="display: none;">
+      <div class="tools-box">
+        <label>انتخاب دامنه پوششی (SNI / Fake-TLS Domain):</label>
+        <select id="domainSelect" onchange="toggleCustomDomain()">
+          <option value="google.com">google.com (پیش‌فرض پیشنهادی)</option>
+          <option value="cloudflare.com">cloudflare.com</option>
+          <option value="yandex.com">yandex.com</option>
+          <option value="apple.com">apple.com</option>
+          <option value="wikipedia.org">wikipedia.org</option>
+          <option value="custom">دامنه دلخواه دیگر...</option>
+        </select>
+
+        <div class="form-group" id="customDomainGroup" style="display: none; margin-top: 10px;">
+          <label>دامنه دلخواه (بدون https):</label>
+          <input type="text" id="customDomainInput" placeholder="مثال: speedtest.net">
+        </div>
+
+        <button class="btn" style="margin-top: 12px;" onclick="generateNewSecret()">🎲 تولید سکرت تصادفی جدید</button>
+
+        <div style="margin-top: 16px;">
+          <label>سکرت تولید شده:</label>
+          <div class="result-link" id="generatedSecretText" style="color: var(--success);">-</div>
+          <button class="btn btn-secondary btn-sm" onclick="applyGeneratedSecret()">✅ استفاده در فرم اتصال</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let servers = JSON.parse(localStorage.getItem('railway_tg_proxies') || '[]');
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (tab === 'connect') {
+        document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+        document.getElementById('tab-connect').style.display = 'block';
+        document.getElementById('tab-generator').style.display = 'none';
+      } else {
+        document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+        document.getElementById('tab-connect').style.display = 'none';
+        document.getElementById('tab-generator').style.display = 'block';
+      }
+    }
+
+    function toggleCustomDomain() {
+      const sel = document.getElementById('domainSelect').value;
+      document.getElementById('customDomainGroup').style.display = sel === 'custom' ? 'block' : 'none';
+    }
+
+    function strToHex(str) {
+      let hex = '';
+      for (let i = 0; i < str.length; i++) {
+        hex += str.charCodeAt(i).toString(16).padStart(2, '0');
+      }
+      return hex;
+    }
+
+    function generateRandomHex(bytes) {
+      const arr = new Uint8Array(bytes);
+      window.crypto.getRandomValues(arr);
+      return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function generateNewSecret() {
+      let domain = document.getElementById('domainSelect').value;
+      if (domain === 'custom') {
+        domain = document.getElementById('customDomainInput').value.trim() || 'google.com';
+      }
+      const random16 = generateRandomHex(16);
+      const domainHex = strToHex(domain);
+      const secret = 'ee' + random16 + domainHex;
+
+      document.getElementById('generatedSecretText').innerText = secret;
+      return secret;
+    }
+
+    function applyGeneratedSecret() {
+      const s = document.getElementById('generatedSecretText').innerText;
+      if (!s || s === '-') {
+        alert('ابتدا سکرت را تولید کنید.');
+        return;
+      }
+      document.getElementById('secret').value = s;
+      switchTab('connect');
+      runDiagnostics();
+      alert('سکرت با موفقیت اعمال شد!');
+    }
+
+    function runDiagnostics() {
+      const host = document.getElementById('host').value.trim();
+      const port = parseInt(document.getElementById('port').value.trim(), 10);
+      const secret = document.getElementById('secret').value.trim();
+      const diag = document.getElementById('diagBox');
+
+      let alerts = [];
+
+      if (host.includes('.up.railway.app')) {
+        alerts.push('<div class="alert alert-warning">⚠️ <strong>هشدار هاست:</strong> آدرس وارد شده دامنه وب HTTP است. تلگرام به اتصال TCP نیاز دارد. لطفاً از آدرس <code>*.proxy.rlwy.net</code> استفاده کنید.</div>');
+      }
+
+      if (isNaN(port) || port < 1 || port > 65535) {
+        alerts.push('<div class="alert alert-error">❌ <strong>خطای پورت:</strong> شماره پورت باید عددی بین ۱ تا ۶۵۵۳۵ باشد.</div>');
+      }
+
+      if (secret && !secret.startsWith('ee')) {
+        alerts.push('<div class="alert alert-warning">⚠️ <strong>هشدار سکرت:</strong> سکرت شما با <code>ee</code> شروع نمی‌شود؛ قابلیت ضد فیلترینگ Fake-TLS غیرفعال خواهد بود.</div>');
+      }
+
+      diag.innerHTML = alerts.join('');
+    }
+
+    function renderSavedServers() {
+      const container = document.getElementById('savedServers');
+      const box = document.getElementById('savedListContainer');
+      
+      if (servers.length === 0) {
+        box.style.display = 'none';
+        return;
+      }
+
+      box.style.display = 'block';
+      container.innerHTML = '';
+
+      servers.forEach((s, idx) => {
+        const item = document.createElement('div');
+        item.className = 'server-item';
+        item.innerHTML = `
+          <div>
+            <strong>${s.name}</strong><br>
+            <span>${s.host}:${s.port}</span>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <a class="btn btn-sm" style="margin: 0;" href="tg://proxy?server=${s.host}&port=${s.port}&secret=${s.secret}">اتصال</a>
+            <button class="btn btn-secondary btn-sm" style="margin: 0;" onclick="removeServer(${idx})">✕</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function generateAndSave() {
+      const name = document.getElementById('nodeName').value.trim() || 'نود';
+      const host = document.getElementById('host').value.trim();
+      const port = document.getElementById('port').value.trim();
+      const secret = document.getElementById('secret').value.trim();
+
+      if (!host || !port || !secret) {
+        alert('لطفاً تمام فیلدها را وارد کنید.');
+        return;
+      }
+
+      const tgLink = `tg://proxy?server=${host}&port=${port}&secret=${secret}`;
+      const webLink = `https://t.me/proxy?server=${host}&port=${port}&secret=${secret}`;
+
+      document.getElementById('linkText').innerText = webLink;
+      document.getElementById('connectBtn').href = tgLink;
+      
+      // QR Code
+      const qrBox = document.getElementById('qrcode-box');
+      const qrImg = document.getElementById('qrImage');
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(tgLink)}`;
+      qrBox.style.display = 'flex';
+
+      document.getElementById('resultBox').style.display = 'block';
+
+      // ذخیره
+      const existingIdx = servers.findIndex(s => s.host === host && s.port === port);
+      if (existingIdx >= 0) {
+        servers[existingIdx] = { name, host, port, secret };
+      } else {
+        servers.push({ name, host, port, secret });
+      }
+      localStorage.setItem('railway_tg_proxies', JSON.stringify(servers));
+      renderSavedServers();
+    }
+
+    function copyLink() {
+      const link = document.getElementById('linkText').innerText;
+      navigator.clipboard.writeText(link).then(() => {
+        alert('لینک کپی شد!');
+      });
+    }
+
+    function copyAllServers() {
+      if (servers.length === 0) return;
+      let text = '🚀 لیست پروکسی‌های فعال Railway:\n\n';
+      servers.forEach((s) => {
+        text += `🔹 ${s.name}:\nhttps://t.me/proxy?server=${s.host}&port=${s.port}&secret=${s.secret}\n\n`;
+      });
+      navigator.clipboard.writeText(text).then(() => {
+        alert('لیست تمام پروکسی‌ها در کلیپ‌بورد کپی شد (آماده ارسال در تلگرام)');
+      });
+    }
+
+    function removeServer(idx) {
+      servers.splice(idx, 1);
+      localStorage.setItem('railway_tg_proxies', JSON.stringify(servers));
+      renderSavedServers();
+    }
+
+    window.onload = () => {
+      renderSavedServers();
+      generateNewSecret();
+      runDiagnostics();
+    };
+  </script>
+</body>
+</html>
